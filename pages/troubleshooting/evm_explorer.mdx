@@ -1,0 +1,19 @@
+# Troubleshooting EVM Explorer
+
+The EVM Explorer is hosted at https://evm-testnet.nexscan.io/
+
+If the webpage is down, you may need to restart Nginx. You can restart the nginx using the following command.
+
+```bash
+sudo systemctl restart nginx
+```
+
+If restarting Nginx doesn't resolve the issue, you may need to restart the EVM Explorer. Currently, the EVM Explorer is hosted on the `nexis-testnet-explorer` instance on AWS. To restart the EVM Explorer, SSH into the EC2 instance and run the following command:
+
+```sh
+docker run -p 3000:3000 --env-file /home/ubuntu/.env ghcr.io/blockscout/frontend:latest
+```
+
+If transactions have been paused, it could indicate issues with either the native chain or the EVM chain.
+
+To troubleshoot the EVM chain, refer to the documentation [here](/troubleshooting/evm_chain).

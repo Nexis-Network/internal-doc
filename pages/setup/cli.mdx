@@ -1,0 +1,42 @@
+# How to setup Nexis CLI?
+
+Nexis CLI is a powerful tool that allows you to interact with the Nexis Native Chain directly from your terminal. As a developer, setting it up locally is essential. Here's a step-by-step guide to get you started:
+
+1. **Update and Install Dependencies:**
+
+```bash
+sudo apt-get update
+sudo apt-get install libssl-dev libudev-dev pkg-config zlib1g-dev llvm clang make cmake protobuf-compiler
+```
+
+2. **Install Rust:**
+nstall Rust using rustup, which is Rust's toolchain installer:
+
+```bash
+curl https://sh.rustup.rs -sSf | sh
+source $HOME/.cargo/env
+rustup component add rustfmt
+
+rustup update
+```
+
+3. **Now clone the nexis network source code**
+
+```bash
+git clone https://github.com/nexis-network/nexis-network.git
+cd nexis-network
+```
+
+4. **Install all the binaries using:**
+
+```bash
+./scripts/cargo-install-all.sh .
+```
+
+5. **Run nexis cli:**
+
+```bash
+./nexis-network/target/release/nexis
+```
+
+This will start the Nexis CLI, allowing you to interact with the Nexis Native Chain directly from your terminal.

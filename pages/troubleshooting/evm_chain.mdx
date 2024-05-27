@@ -1,0 +1,34 @@
+# Troubleshooting EVM Chain
+
+We have two chains running: an EVM Chain and a Native Chain.
+
+- **EVM Chain RPC:** [https://evm-testnet.nexis.network](https://evm-testnet.nexis.network)
+- **Native Chain RPC:** [https://api.testnet.nexis.network](https://api.testnet.nexis.network)
+
+## How to Identify Whether the EVM Chain is Not Working
+
+1. **Check the EVM RPC:**
+   - Visit [https://evm-testnet.nexis.network](https://evm-testnet.nexis.network). If it throws an error, the EVM chain is down.
+   
+2. **Check Transactions and Balances:**
+   - If transactions are paused but balances are loading in MetaMask, the Native RPC is up and running. The issue is likely with the EVM bridge.
+
+### Checking the EVM Bridge
+
+Currently, the EVM bridge runs on an AWS instance named `nexis-testnet-explorer`. To check the logs:
+
+1. Open the tmux session:
+    ```sh
+    tmux attach -t bridge
+    ```
+2. View the logs:
+   - If the logs are empty, the bridge is not running.
+   - To start the bridge, use the following commands:
+     ```sh
+     export RUST_LOG="debug,hyper=info,tokio_reactor=info,reqwest=info"
+     /home/ubuntu/nexis/target/release/evm-bridge ~/.wallet/my-keypair.json https://api.testnet.nexis.network 0.0.0.0:8545 2370
+     ```
+
+## What is the EVM Bridge For?
+
+The EVM bridge wraps EVM transactions to the native chain and passes them to [https://api.testnet.nexis.network](https://api.testnet.nexis.network). Ensure `my-keypair.json` is always funded as it acts as the fee payer.
