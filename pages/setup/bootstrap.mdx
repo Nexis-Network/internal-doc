@@ -1,0 +1,114 @@
+# How to setup Bootstrap validator?
+
+To set up a bootstrap validator, follow these steps to generate the genesis hash. If you just want to setup a regular validator, refer [here](/setup/validator).
+
+Ensure that you are not using AWS, as the public IP is not accessible from within the system. Additionally, the Nexis CLI must be installed on your system. Refer to the [CLI Setup Guide](/setup/cli) for instructions.
+
+*Note: Raebeatrose has deployed everything on Latitude.sh and will spin the containers physically at home after the launch.*
+
+## Requirements
+
+1. [Nexis CLI](/setup/cli)
+2. [Tuned System](/setup/systune)
+
+## Generating the Genesis Hash
+
+You will need the following keypairs for the bootstrap validator: identity, vote, stake, and faucet. Generate these using the following commands:
+
+1. Validator keypair
+
+```bash
+    nexis-keygen new -o bootstrap-validator-keypair.json
+```
+
+2. Vote account keypair
+
+```bash
+    nexis-keygen new -o bootstrap-vote-keypair.json
+```
+
+3. Stake keypair
+
+```bash
+    nexis-keygen new -o bootstrap-stake-keypair.json
+```
+
+4. Faucet keypair
+
+```bash
+    nexis-keygen new -o faucet-keypair.json
+```
+
+To generate the genesis info run the following command
+
+```bash
+nexis-genesis \
+        --enable-warmup-epochs \
+        --bootstrap-validator ~/bootstrap-validator-keypair.json ~/bootstrap-vote-keypair.json ~/bootstrap-stake-keypair.json \
+        --bootstrap-validator-lamports 5000000000000000 \
+        --bootstrap-validator-stake-lamports 50000000000000 \
+        --faucet-lamports 1000000000000000000 \
+        --faucet-pubkey ~/faucet-keypair.json \
+        --ledger ~/ledger/ \
+        --cluster-type development \
+        --vote-commission-percentage 8 \
+        --slots-per-epoch 432000
+```
+
+Copy the output for later use. Here is an example of the genesis information for the devnet:
+
+```
+    Creation time: 2024-05-29T01:46:50+00:00
+    Cluster type: Development
+    Genesis hash: 3CmTysjA15eRWXaU9aHRvgkMK53KZx2iYo8S7QYitoSx
+    Shred version: 45882
+    Ticks per slot: 64
+    Hashes per tick: Some(7978)
+    Target tick duration: 6.25ms
+    Slots per epoch: 432000
+    Warmup epochs: enabled
+    Slots per year: 78892314.984
+    Inflation { initial: 0.08, terminal: 0.015, taper: 0.15, foundation: 0.05, foundation_term: 7.0, __unused: 0.0 }
+    Rent { lamports_per_byte_year: 3480, exemption_threshold: 2.0, burn_percent: 50 }
+    FeeRateGovernor { lamports_per_signature: 9500, target_lamports_per_signature: 10000, target_signatures_per_slot: 20000, min_lamports_per_signature: 5000, max_lamports_per_signature: 100000, burn_percent: 50 }
+    Capitalization: 1005050000.141288 NZT in 125 accounts
+    Native instruction processors: []
+    Rewards pool: {}
+    EVM chain id: 57005
+```
+
+## Starting the Bootnode
+
+To start the bootnode, use the following script. Make sure to replace the genesis hash and shred version with the values from your genesis configuration.
+
+```bash
+#!/bin/bash
+
+exec nexis-validator \
+        --expected-shred-version 45882 \
+        --full-rpc-api \
+        --gossip-host 185.26.8.199 \
+        --gossip-port 8000 \
+        --identity ~/bootstrap-validator-keypair.json \
+        --ledger ~/ledger/ \
+        --rpc-faucet-address 185.26.8.199:9900 \
+        --rpc-port 8899 \
+        --vote-account ~/bootstrap-vote-keypair.json \
+        --snapshot-interval-slots 300 \
+        --full-snapshot-interval-slots 3000 \
+        --expected-genesis-hash 3CmTysjA15eRWXaU9aHRvgkMK53KZx2iYo8S7QYitoSx \
+        --log ~/validator.log \
+        --limit-ledger-size 50000000 \
+        --no-wait-for-vote-to-start-leader \
+	--no-os-network-limits-test
+```
+
+Your bootnode is up and running, now if you need to add more validators to the cluster, refer to [this](/setup/validator)
+
+## Monitoring the Bootstrap validator
+
+To monitor your bootstrap validator, run the following command:
+
+```bash
+nexis-validator --ledger ~/ledger monitor
+```
